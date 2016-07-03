@@ -1,5 +1,4 @@
 <link rel="import" href="../polymer/polymer.html">
-
 <link rel="import" href="../iron-ajax/iron-ajax.html">
 
 
@@ -23,7 +22,6 @@
 	        client_secret: String,
 	        token: {
 		        type: String,
-		        readOnly: true,
 		        notify: true
 		    }
         }, 
@@ -49,7 +47,7 @@
 	            'client_id=' + this.client_id +'&'+
 	            'redirect_uri=' + 'http://localhost' +'&'+
 	            'response_type=code' +'&'+
-	            'scope=' + 'email' //poner aqui los scopes!!!
+	            'scope=' + 'email https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/userinfo.profile' //poner aqui los scopes!!!
 	        ;
 
 	        //Open the OAuth consent page in the InAppBrowser
@@ -93,7 +91,6 @@
 		handleResponse: function(request){
 			if(request.detail.response.access_token){
 				this.token=request.detail.response.access_token;
-				this.fire('google-signin-success');
 			}
 		}
 	  });
