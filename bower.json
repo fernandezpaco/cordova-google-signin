@@ -1,0 +1,29 @@
+{
+  "name": "cordova-google-signin",
+  "homepage": "https://github.com/fernandezpaco/cordova-google-signin",
+  "authors": [
+    "fernandezpaco <ffernandez@bbva.com>"
+  ],
+  "description": "Component to authenticate with Google services in cordova apps",
+  "main": "cordova-google-signin.html",
+  "keywords": [
+    "cordova",
+    "oauth",
+    "google",
+    "sign-in",
+    "inappbrowser",
+    "web-component"
+  ],
+  "dependencies": {
+    "polymer": "Polymer/polymer#^1.0.0",
+    "iron-ajax": "PolymerElements/iron-ajax#^1.0.0"
+  },
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
