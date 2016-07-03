@@ -5,11 +5,13 @@ Use this component instead of <google-signin> when you are packing your app usin
 
 You will need InAppBrowser plugin
 
+As described in https://developers.google.com/identity/protocols/OAuth2InstalledApp your secret key is not supposed to be secret for installed apps
+
 ```html
  <cordova-google-signin 
     id="cordovasignin" 
-    client_id="715517905347-vss7aqemaamj2vlvokivjrecig4tbu4o.apps.googleusercontent.com"
-    client_secret= "3czRmsT30F8VG1ROYtMNT64a">
+    client_id="your-client-id"
+    client_secret= "your-secret-key">
   </cordova-google-signin>
   <script type="text/javascript">
 	document.addEventListener("deviceready", onDeviceReady, false);
