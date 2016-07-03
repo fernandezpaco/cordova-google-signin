@@ -1,5 +1,6 @@
 {
   "name": "cordova-google-signin",
+  "version": "0.8",
   "homepage": "https://github.com/fernandezpaco/cordova-google-signin",
   "authors": [
     "fernandezpaco <ffernandez@bbva.com>"
@@ -18,12 +19,9 @@
     "polymer": "Polymer/polymer#^1.0.0",
     "iron-ajax": "PolymerElements/iron-ajax#^1.0.0"
   },
-  "license": "MIT",
+  "license": "Apache2",
   "ignore": [
-    "**/.*",
-    "node_modules",
-    "bower_components",
-    "test",
-    "tests"
+    "/.*",
+    "/test/"
   ]
 }
