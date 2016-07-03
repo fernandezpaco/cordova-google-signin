@@ -1,0 +1,101 @@
+<link rel="import" href="../polymer/polymer.html">
+
+<link rel="import" href="../iron-ajax/iron-ajax.html">
+
+
+<dom-module id="cordova-google-signin">
+
+	<template>
+		<iron-ajax id="token_ajax"
+			method="POST"
+			content-type="application/x-www-form-urlencoded"
+		    url="https://accounts.google.com/o/oauth2/token"		    
+		    handle-as="json"
+		    on-response="handleResponse">
+		</iron-ajax>
+	</template>
+
+	<script>
+	  Polymer({
+	    is: 'cordova-google-signin',
+		properties: {
+	        client_id: String,
+	        client_secret: String,
+	        token: {
+		        type: String,
+		        readOnly: true,
+		        notify: true
+		    }
+        }, 
+        compute_params: function(code, client_id, client_secret){
+			var params = {};
+			if (code) {
+				params['code'] = code;
+			}        	
+			if (client_id) {
+				params['client_id'] = client_id;
+			}        	
+			if (client_secret) {
+				params['client_secret'] = client_secret;
+			}  
+			params['grant_type'] = 'authorization_code';
+			params['redirect_uri'] = 'http://localhost';
+
+        	return params;
+        },
+        getToken: function(options) {
+	        //Build the OAuth consent page URL
+	        var authUrl = 'https://accounts.google.com/o/oauth2/auth?'+
+	            'client_id=' + this.client_id +'&'+
+	            'redirect_uri=' + 'http://localhost' +'&'+
+	            'response_type=code' +'&'+
+	            'scope=' + 'email' //poner aqui los scopes!!!
+	        ;
+
+	        //Open the OAuth consent page in the InAppBrowser
+	        var authWindow = window.open(authUrl, '_blank', 'location=no,toolbar=no');
+
+			authWindow.addEventListener('loadstart', googleCallback);
+
+			var ajaxobj=this.$.token_ajax;
+			compute=this.compute_params;
+			var me=this;
+			function googleCallback (e){
+	            var url = (typeof e.url !== 'undefined' ? e.url : e.originalEvent.url);
+	            var code = /\?code=(.+)$/.exec(url);
+	            var error = /\?error=(.+)$/.exec(url);
+
+	            if (code || error) {
+	                //Always close the browser when match is found
+	                authWindow.close();
+	            }
+
+	            if (code) {
+	            	ajaxobj.body=compute(code[1],me.client_id,me.client_secret)
+	            	//this.code=code[1];
+	            	ajaxobj.generateRequest();                    
+	            }
+	        }
+	    },
+		getQueryParams: function (qs) {
+		    qs = qs.split('+').join(' ');
+
+		    var params = {},
+		        tokens,
+		        re = /[?&]?([^=]+)=([^&]*)/g;
+
+		    while (tokens = re.exec(qs)) {
+		        params[decodeURIComponent(tokens[1])] = decodeURIComponent(tokens[2]);
+		    }
+
+		    return params;
+		},
+		handleResponse: function(request){
+			if(request.detail.response.access_token){
+				this.token=request.detail.response.access_token;
+				this.fire('google-signin-success');
+			}
+		}
+	  });
+	</script>
+</dom-module>
