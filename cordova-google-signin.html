@@ -37,43 +37,48 @@
 				params['client_secret'] = client_secret;
 			}  
 			params['grant_type'] = 'authorization_code';
-			params['redirect_uri'] = 'http://localhost';
+			params['redirect_uri'] = 'http://a.com';
 
         	return params;
         },
         getToken: function(options) {
-	        //Build the OAuth consent page URL
-	        var authUrl = 'https://accounts.google.com/o/oauth2/auth?'+
-	            'client_id=' + this.client_id +'&'+
-	            'redirect_uri=' + 'http://localhost' +'&'+
-	            'response_type=code' +'&'+
-	            'scope=' + 'email https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/userinfo.profile' //poner aqui los scopes!!!
-	        ;
 
-	        //Open the OAuth consent page in the InAppBrowser
-	        var authWindow = window.open(authUrl, '_blank', 'location=no,toolbar=no');
+        	if (new Date().getTime() < localStorage.expires_at) {
+                this.token= localStorage.access_token
+        	}else{
+		        //Build the OAuth consent page URL
+		        var authUrl = 'https://accounts.google.com/o/oauth2/auth?'+
+		            'client_id=' + this.client_id +'&'+
+		            'redirect_uri=' + 'http://a.com' +'&'+
+		            'response_type=code' +'&'+
+		            'scope=' + 'email https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/userinfo.profile' //poner aqui los scopes!!!
+		        ;
 
-			authWindow.addEventListener('loadstart', googleCallback);
+		        //Open the OAuth consent page in the InAppBrowser
+		        var authWindow = window.open(authUrl, '_blank', 'location=no,toolbar=no');
 
-			var ajaxobj=this.$.token_ajax;
-			compute=this.compute_params;
-			var me=this;
-			function googleCallback (e){
-	            var url = (typeof e.url !== 'undefined' ? e.url : e.originalEvent.url);
-	            var code = /\?code=(.+)$/.exec(url);
-	            var error = /\?error=(.+)$/.exec(url);
+				authWindow.addEventListener('loadstart', googleCallback);
 
-	            if (code || error) {
-	                //Always close the browser when match is found
-	                authWindow.close();
-	            }
+				var ajaxobj=this.$.token_ajax;
+				compute=this.compute_params;
+				var me=this;
+				function googleCallback (e){
+		            var url = (typeof e.url !== 'undefined' ? e.url : e.originalEvent.url);
+		            var code = /\?code=(.+)$/.exec(url);
+		            var error = /\?error=(.+)$/.exec(url);
 
-	            if (code) {
-	            	ajaxobj.body=compute(code[1],me.client_id,me.client_secret)
-	            	//this.code=code[1];
-	            	ajaxobj.generateRequest();                    
-	            }
-	        }
+		            if (code || error) {
+		                //Always close the browser when match is found
+		                authWindow.close();
+		            }
+
+		            if (code) {
+		            	ajaxobj.body=compute(code[1],me.client_id,me.client_secret)
+		            	//this.code=code[1];
+		            	ajaxobj.generateRequest();                    
+		            }
+		        }
+		    }
 	    },
 		getQueryParams: function (qs) {
 		    qs = qs.split('+').join(' ');
@@ -91,6 +96,15 @@
 		handleResponse: function(request){
 			if(request.detail.response.access_token){
 				this.token=request.detail.response.access_token;
+
+						//Cache the token
+		        localStorage.access_token = this.token;
+		        //Cache the refresh token, if there is one
+		        localStorage.refresh_token = request.detail.response.refresh_token || localStorage.refresh_token;
+		        //Figure out when the token will expire by using the current
+		        //time, plus the valid time (in seconds), minus a 1 minute buffer
+		        var expiresAt = new Date().getTime() + parseInt(request.detail.response.expires_in, 10) * 1000 - 60000;
+		        localStorage.expires_at = expiresAt;
 			}
 		}
 	  });
