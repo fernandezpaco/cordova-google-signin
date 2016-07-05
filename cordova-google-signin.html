@@ -44,6 +44,9 @@
 
         	return params;
         },
+        signIn: function(){
+        	this.getToken();
+        },
         getToken: function(options) {
 
         	if (new Date().getTime() < parseInt(localStorage.expires_at)) {
@@ -94,19 +97,6 @@
 			    }
 		    }
 	    },
-		getQueryParams: function (qs) {
-		    qs = qs.split('+').join(' ');
-
-		    var params = {},
-		        tokens,
-		        re = /[?&]?([^=]+)=([^&]*)/g;
-
-		    while (tokens = re.exec(qs)) {
-		        params[decodeURIComponent(tokens[1])] = decodeURIComponent(tokens[2]);
-		    }
-
-		    return params;
-		},
 		handleResponse: function(request){
 			if(request.detail.response.access_token){
 				this.token=request.detail.response.access_token;
