@@ -1,11 +1,11 @@
 # cordova-google-signin
 Polymer component for google-signin in cordova apps
 
-Use this component instead of <google-signin> when you are packing your app using cordova
+Use this component instead of google-signin when you are packing your app using cordova
 
 You will need InAppBrowser plugin
 
-As described in https://developers.google.com/identity/protocols/OAuth2InstalledApp your secret key is not supposed to be secret for installed apps. Be sure to generate a clientid for installed apps (other than web). If you create a web client id you will need to grant permissions to redirect to localhost. 
+As described in https://developers.google.com/identity/protocols/OAuth2InstalledApp your secret key is not supposed to be secret for installed apps. Be sure to generate a clientid for installed apps (other than web). If you create a web client id (not recommended) you will need to grant permissions to redirect to localhost. 
 
 ```html
  <cordova-google-signin 
