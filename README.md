@@ -10,6 +10,7 @@ As described in https://developers.google.com/identity/protocols/OAuth2Installed
 ```html
  <cordova-google-signin 
     id="cordovasignin" 
+    scopes="https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/userinfo.profile"
     client_id="your-client-id"
     client_secret= "your-secret-key">
   </cordova-google-signin>
@@ -17,7 +18,7 @@ As described in https://developers.google.com/identity/protocols/OAuth2Installed
 	document.addEventListener("deviceready", onDeviceReady, false);
 	function onDeviceReady() {	    
 	    window.open = cordova.InAppBrowser.open;
-	    document.querySelector("#cordovasignin").getToken();
+	    document.querySelector("#cordovasignin").signIn();
 	}
   </script>
 ```

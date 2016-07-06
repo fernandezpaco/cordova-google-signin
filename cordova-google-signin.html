@@ -20,19 +20,24 @@
 		properties: {
 	        client_id: String,
 	        client_secret: String,
+	        scopes: String,
+	        redirect_uri: {
+		        type: String,
+		        value: "http://localhost"
+		    },
 	        token: {
 		        type: String,
 		        notify: true
 		    }
         }, 
-        compute_params: function(code, client_id, client_secret, grant, refresh){
+        compute_params: function(code, client_id, client_secret, grant, refresh, redirect_uri){
 			var params = {};
 			if (refresh) {
 				params['refresh_token'] = refresh;
 			}        	
 			if (code) {
 				params['code'] = code;
-				params['redirect_uri'] = 'http://localhost';
+				params['redirect_uri'] = redirect_uri;
 			}        	
 			if (client_id) {
 				params['client_id'] = client_id;
@@ -44,10 +49,7 @@
 
         	return params;
         },
-        signIn: function(){
-        	this.getToken();
-        },
-        getToken: function(options) {
+        signIn: function() {
 
         	if (new Date().getTime() < parseInt(localStorage.expires_at)) {
                 this.token= localStorage.access_token
@@ -55,7 +57,7 @@
         		if(localStorage.refresh_token){
         			//we can refresh the token
 
-	            	this.$.token_ajax.body=this.compute_params(false,this.client_id,this.client_secret,'refresh_token',localStorage.refresh_token);
+	            	this.$.token_ajax.body=this.compute_params(false,this.client_id,this.client_secret,'refresh_token',localStorage.refresh_token, this.redirect_uri);
 	            	//this.code=code[1];
 	            	this.$.token_ajax.generateRequest();                    
 
@@ -65,9 +67,9 @@
 			        //Build the OAuth consent page URL
 			        var authUrl = 'https://accounts.google.com/o/oauth2/auth?'+
 			            'client_id=' + this.client_id +'&'+
-			            'redirect_uri=' + 'http://localhost' +'&'+
+			            'redirect_uri=' + this.redirect_uri +'&'+
 			            'response_type=code' +'&'+
-			            'scope=' + 'email https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/userinfo.profile' //poner aqui los scopes!!!
+			            'scope=' + this.scopes //poner aqui los scopes!!!
 			        ;
 
 			        //Open the OAuth consent page in the InAppBrowser
@@ -89,7 +91,7 @@
 			            }
 
 			            if (code) {
-			            	ajaxobj.body=compute(code[1],me.client_id,me.client_secret,'authorization_code',false);
+			            	ajaxobj.body=compute(code[1],me.client_id,me.client_secret,'authorization_code',false, me.redirect_uri);
 			            	//this.code=code[1];
 			            	ajaxobj.generateRequest();                    
 			            }
