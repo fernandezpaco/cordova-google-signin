@@ -13,7 +13,8 @@ As described in https://developers.google.com/identity/protocols/OAuth2Installed
     scopes="https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/userinfo.profile"
     client_id="your-client-id"
     client_secret= "your-secret-key"
-    token="{{oauth_token_returned}}">
+    acces_token="{{oauth_access_token_returned}}"
+    id_token="{{oauth_access_token_returned}}">
 
   </cordova-google-signin>
   <script type="text/javascript">

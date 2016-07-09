@@ -25,10 +25,15 @@
 		        type: String,
 		        value: "http://localhost"
 		    },
-	        token: {
+	        access_token: {
+		        type: String,
+		        notify: true
+		    },
+		   	id_token: {
 		        type: String,
 		        notify: true
 		    }
+
         }, 
         compute_params: function(code, client_id, client_secret, grant, refresh, redirect_uri){
 			var params = {};
@@ -52,7 +57,8 @@
         signIn: function() {
 
         	if (new Date().getTime() < parseInt(localStorage.expires_at)) {
-                this.token= localStorage.access_token
+                this.access_token= localStorage.access_token;
+                this.id_token= localStorage.id_token
         	}else{
         		if(localStorage.refresh_token){
         			//we can refresh the token
@@ -101,10 +107,12 @@
 	    },
 		handleResponse: function(request){
 			if(request.detail.response.access_token){
-				this.token=request.detail.response.access_token;
+				this.access_token=request.detail.response.access_token;
+				this.id_token=request.detail.response.id_token;
 
 						//Cache the token
-		        localStorage.access_token = this.token;
+		        localStorage.access_token = this.access_token;
+		        localStorage.id_token = this.id_token;
 		        //Cache the refresh token, if there is one
 		        if(request.detail.response.refresh_token)
 		        	localStorage.refresh_token =  request.detail.response.refresh_token;
