@@ -4,112 +4,124 @@
 
 <dom-module id="cordova-google-signin">
 
-	<template>
-		<iron-ajax id="token_ajax"
-			method="POST"
-			content-type="application/x-www-form-urlencoded"
-		    url="https://accounts.google.com/o/oauth2/token"
-		    handle-as="json"
-		    on-response="handleResponse">
-		</iron-ajax>
-	</template>
+  <template>
+    <iron-ajax id="token_ajax"
+    method="POST"
+    content-type="application/x-www-form-urlencoded"
+    url="https://accounts.google.com/o/oauth2/token"        
+    handle-as="json"
+    on-response="handleResponse">
+  </iron-ajax>
+</template>
 
-	<script>
-	  Polymer({
-	    is: 'cordova-google-signin',
-		  properties: {
-        client_id: String,
-        client_secret: String,
-        scopes: String,
-        token: {
-	        type: String,
-	        notify: true
-	      }
+<script>
+  Polymer({
+    is: 'cordova-google-signin',
+    properties: {
+      client_id: String,
+      client_secret: String,
+      scopes: String,
+      redirect_uri: {
+        type: String,
+        value: "http://localhost"
       },
-      compute_params: function(code, client_id, client_secret, grant, refresh){
-  			var params = {};
-  			if (refresh) {
-  				params['refresh_token'] = refresh;
-  			}
-  			if (code) {
-  				params['code'] = code;
-  				params['redirect_uri'] = 'http://localhost';
-  			}
-  			if (client_id) {
-  				params['client_id'] = client_id;
-  			}
-  			if (client_secret) {
-  				params['client_secret'] = client_secret;
-  			}
-  			params['grant_type'] = grant;
-        return params;
+      access_token: {
+        type: String,
+        notify: true
       },
-      signIn: function(){
-      	this.getToken();
-      },
-      getToken: function(options) {
+      id_token: {
+        type: String,
+        notify: true
+      }
 
-      	if (new Date().getTime() < parseInt(localStorage.expires_at)) {
-          this.token= localStorage.access_token
-      	}else {
-      		if (localStorage.refresh_token) {
-      			//we can refresh the token
-          	this.$.token_ajax.body=this.compute_params(false,this.client_id,this.client_secret,'refresh_token',localStorage.refresh_token);
-          	//this.code=code[1];
-          	this.$.token_ajax.generateRequest();
-      		}else{
-      			//Its the first time, we need to ask for permisssions
+    }, 
+    compute_params: function(code, client_id, client_secret, grant, refresh, redirect_uri){
+      var params = {};
+      if (refresh) {
+        params['refresh_token'] = refresh;
+      }         
+      if (code) {
+        params['code'] = code;
+        params['redirect_uri'] = redirect_uri;
+      }         
+      if (client_id) {
+        params['client_id'] = client_id;
+      }         
+      if (client_secret) {
+        params['client_secret'] = client_secret;
+      }  
+      params['grant_type'] = grant;
 
-		        //Build the OAuth consent page URL
-		        var authUrl = 'https://accounts.google.com/o/oauth2/auth?'+
-	            'client_id=' + this.client_id +'&'+
-	            'redirect_uri=' + 'http://localhost' +'&'+
-	            'response_type=code' +'&'+
-	            'scope=' + this.scopes; //poner aqui los scopes!!!
-
-
-		        //Open the OAuth consent page in the InAppBrowser
-		        var authWindow = window.open(authUrl, '_blank', 'location=no,toolbar=no');
-
-				    authWindow.addEventListener('loadstart', googleCallback);
-
-    				var ajaxobj=this.$.token_ajax;
-    				compute=this.compute_params;
-    				var me=this;
-    				function googleCallback (e){
-		            var url = (typeof e.url !== 'undefined' ? e.url : e.originalEvent.url);
-		            var code = /\?code=(.+)$/.exec(url);
-		            var error = /\?error=(.+)$/.exec(url);
-
-		            if (code || error) {
-		                //Always close the browser when match is found
-		                authWindow.close();
-		            }
-		            if (code) {
-		            	ajaxobj.body=compute(code[1],me.client_id,me.client_secret,'authorization_code',false);
-		            	//this.code=code[1];
-		            	ajaxobj.generateRequest();
-		            }
-		        }
-		    }
-	    }
+      return params;
     },
-		handleResponse: function(request) {
-			if (request.detail.response.access_token) {
-				this.token=request.detail.response.access_token;
-				//Cache the token
-        localStorage.access_token = this.token;
-        localStorage.id_token = request.detail.response.id_token;
-        //Cache the refresh token, if there is one
-        if (request.detail.response.refresh_token) {
-          localStorage.refresh_token =  request.detail.response.refresh_token;
+    signIn: function() {
+
+      if (new Date().getTime() < parseInt(localStorage.expires_at)) {
+        this.access_token= localStorage.access_token;
+        this.id_token= localStorage.id_token
+      }else{
+        if(localStorage.refresh_token){
+              //we can refresh the token
+
+              this.$.token_ajax.body=this.compute_params(false,this.client_id,this.client_secret,'refresh_token',localStorage.refresh_token, this.redirect_uri);
+                //this.code=code[1];
+                this.$.token_ajax.generateRequest();                    
+
+              }else{
+              //Its the first time, we need to ask for permisssions
+
+              //Build the OAuth consent page URL
+              var authUrl = 'https://accounts.google.com/o/oauth2/auth?'+
+              'client_id=' + this.client_id +'&'+
+              'redirect_uri=' + this.redirect_uri +'&'+
+              'response_type=code' +'&'+
+                  'scope=' + this.scopes //poner aqui los scopes!!!
+                  ;
+
+              //Open the OAuth consent page in the InAppBrowser
+              var authWindow = window.open(authUrl, '_blank', 'location=no,toolbar=no');
+
+              authWindow.addEventListener('loadstart', googleCallback);
+
+              var ajaxobj=this.$.token_ajax;
+              compute=this.compute_params;
+              var me=this;
+              function googleCallback (e){
+                var url = (typeof e.url !== 'undefined' ? e.url : e.originalEvent.url);
+                var code = /\?code=(.+)$/.exec(url);
+                var error = /\?error=(.+)$/.exec(url);
+
+                if (code || error) {
+                      //Always close the browser when match is found
+                      authWindow.close();
+                    }
+
+                    if (code) {
+                      ajaxobj.body=compute(code[1],me.client_id,me.client_secret,'authorization_code',false, me.redirect_uri);
+                    //this.code=code[1];
+                    ajaxobj.generateRequest();                    
+                  }
+                }
+              }
+            }
+          },
+          handleResponse: function(request){
+            if(request.detail.response.access_token){
+              this.access_token=request.detail.response.access_token;
+              this.id_token=request.detail.response.id_token;
+
+            //Cache the token
+            localStorage.access_token = this.access_token;
+            localStorage.id_token = this.id_token;
+            //Cache the refresh token, if there is one
+            if(request.detail.response.refresh_token)
+              localStorage.refresh_token =  request.detail.response.refresh_token;
+            //Figure out when the token will expire by using the current
+            //time, plus the valid time (in seconds), minus a 1 minute buffer
+            var expiresAt = new Date().getTime() + parseInt(request.detail.response.expires_in, 10) * 1000 - 60000;
+            localStorage.expires_at = expiresAt;
+          }
         }
-        //Figure out when the token will expire by using the current
-        //time, plus the valid time (in seconds), minus a 1 minute buffer
-        var expiresAt = new Date().getTime() + parseInt(request.detail.response.expires_in, 10) * 1000 - 60000;
-        localStorage.expires_at = expiresAt;
-			}
-		}
-	  });
-	</script>
-</dom-module>
+      });
+    </script>
+  </dom-module>
