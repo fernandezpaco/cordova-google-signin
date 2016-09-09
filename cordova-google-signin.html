@@ -20,6 +20,7 @@
 		  properties: {
         client_id: String,
         client_secret: String,
+        scopes: String,
         token: {
 	        type: String,
 	        notify: true
@@ -64,7 +65,7 @@
 	            'client_id=' + this.client_id +'&'+
 	            'redirect_uri=' + 'http://localhost' +'&'+
 	            'response_type=code' +'&'+
-	            'scope=' + 'email https://www.googleapis.com/auth/drive https://www.googleapis.com/auth/userinfo.profile'; //poner aqui los scopes!!!
+	            'scope=' + this.scopes; //poner aqui los scopes!!!
 
 
 		        //Open the OAuth consent page in the InAppBrowser
