@@ -1,4 +1,10 @@
-# cordova-google-signin
+# Deprecated
+
+User cordova-oauth instead: https://github.com/fernandezpaco/cordova-oauth
+
+
+
+
 Polymer component for google-signin in cordova apps
 
 Use this component instead of google-signin when you are packing your app using cordova
